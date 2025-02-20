@@ -19,28 +19,32 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        print("✅ Received request at /predict")
+        # Extract JSON data (since jQuery is sending JSON)
+        input_data = request.get_json()
 
-        # Check if request is JSON
-        if request.is_json:
-            data = request.json["features"]
-            print("📩 Received JSON Data:", data)
-        else:
-            return jsonify({"error": "Invalid request format"}), 400
+        # Debugging: Print received data
+        print("📩 Received JSON Data:", input_data)
 
-        # Convert to numpy array & reshape for model
-        features = np.array(data).reshape(1, -1)
+        # Ensure 'features' key exists in JSON
+        if "features" not in input_data:
+            return jsonify({"error": "Missing 'features' key in request"}), 400
 
-        # Make prediction
+        # Convert all values to float
+        features = np.array([float(x) for x in input_data["features"]]).reshape(1, -1)
+
+        # Debugging: Print converted features
+        print("✅ Converted Features:", features)
+
+        # Get prediction (0 = No Disease, 1 = Disease)
         prediction = model.predict(features)[0]
         result = "Yes" if prediction == 1 else "No"
 
-        print(f"🔮 Prediction: {result}")
         return jsonify({"prediction": result})
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 
 if __name__ == "__main__":
