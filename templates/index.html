@@ -118,27 +118,43 @@
 
     <script>
         $(document).ready(function () {
-            $(".heart").addClass("animate-heart"); 
+    $("#predictForm").submit(function (event) {
+        event.preventDefault();
 
-            $("#predictForm").submit(function (event) {
-                event.preventDefault();
+        let formData = {
+            age: $("#age").val(),
+            sex: $("#sex").val(),
+            cp: $("#cp").val(),
+            trestbps: $("#trestbps").val(),
+            chol: $("#chol").val(),
+            fbs: $("#fbs").val(),
+            restecg: $("#restecg").val(),
+            thalach: $("#thalach").val(),
+            exang: $("#exang").val(),
+            oldpeak: $("#oldpeak").val(),
+            slope: $("#slope").val(),
+            ca: $("#ca").val(),
+            thal: $("#thal").val()
+        };
 
-                let formData = {};
-                $("#predictForm").serializeArray().forEach(input => {
-                    formData[input.name] = input.value;
-                });
+        console.log("📤 Sending Data:", formData); // Debugging
 
-                $.ajax({
-                    type: "POST",
-                    url: "/predict",
-                    data: JSON.stringify({ features: Object.values(formData) }),
-                    contentType: "application/json",
-                    success: function (response) {
-                        $("#result").html(`<h2>Prediction: ${response.prediction ? "Yes (Heart Disease)" : "No (Healthy)"}</h2>`);
-                    }
-                });
-            });
+        $.ajax({
+            type: "POST",
+            url: "/predict",
+            data: JSON.stringify({ features: Object.values(formData) }), 
+            contentType: "application/json",  // Ensure JSON is sent
+            success: function (response) {
+                console.log("✅ Response:", response);
+                $("#result").html(`<h2>Prediction: ${response.prediction ? "Yes (Heart Disease)" : "No (Healthy)"}</h2>`);
+            },
+            error: function (xhr) {
+                console.error("❌ Error:", xhr.responseText);
+            }
         });
+    });
+});
+
     </script>
 
 </body>
